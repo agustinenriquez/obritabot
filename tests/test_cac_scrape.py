@@ -1,6 +1,5 @@
 import pytest
 import os
-import time
 from datetime import datetime, timedelta
 from backend.cac_scraper import scrape_cac_index_alternative
 
@@ -46,6 +45,18 @@ def test_scrape_cac_index_alternative():
 
     update_last_run_timestamp()
     cache_cac_value(cac_index_alternative)
+
+def test_cached_cac_value():
+    # Cache a test value
+    test_value = "15.356,40"
+    cache_cac_value(test_value)
+    
+    # Retrieve the cached value
+    cached_value = get_cached_cac_value()
+    
+    # Check if the cached value is correct
+    assert cached_value == test_value, "Cached CAC value does not match the expected value"
+    print(f"Cached CAC value: {cached_value}")
 
 if __name__ == "__main__":
     pytest.main()

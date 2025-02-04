@@ -1,8 +1,7 @@
 import pytest
 import os
-import time
 from datetime import datetime, timedelta
-from backend.cac_scraper import scrape_cac_index, scrape_cac_index_alternative
+from backend.cac_scraper import scrape_cac_index_alternative
 
 LAST_RUN_FILE = "tests/last_run_timestamp.txt"
 

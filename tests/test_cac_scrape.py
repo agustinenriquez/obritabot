@@ -1,9 +1,11 @@
 import pytest
 import os
+import time
 from datetime import datetime, timedelta
 from backend.cac_scraper import scrape_cac_index_alternative
 
 LAST_RUN_FILE = "tests/last_run_timestamp.txt"
+CACHE_FILE = "tests/cac_cache.txt"
 
 def should_run_test():
     if os.path.exists(LAST_RUN_FILE):
@@ -18,16 +20,32 @@ def update_last_run_timestamp():
     with open(LAST_RUN_FILE, "w") as f:
         f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
+def cache_cac_value(cac_value):
+    with open(CACHE_FILE, "w") as f:
+        f.write(cac_value)
+
+def get_cached_cac_value():
+    if os.path.exists(CACHE_FILE):
+        with open(CACHE_FILE, "r") as f:
+            return f.read().strip()
+    return None
+
 def test_scrape_cac_index_alternative():
     if not should_run_test():
-        print("Test already run within the last 24 hours. Skipping test.")
-        return
+        cached_value = get_cached_cac_value()
+        if cached_value:
+            print(f"Using cached CAC Index: {cached_value}")
+            return
+        else:
+            print("Test already run within the last 24 hours, but no cached value found. Skipping test.")
+            return
 
     cac_index_alternative = scrape_cac_index_alternative()
     assert cac_index_alternative is not None, "Failed to scrape CAC Index from ikiwi"
     print(f"CAC Index from ikiwi: {cac_index_alternative}")
 
     update_last_run_timestamp()
+    cache_cac_value(cac_index_alternative)
 
 if __name__ == "__main__":
     pytest.main()

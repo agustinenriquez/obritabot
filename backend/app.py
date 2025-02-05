@@ -38,6 +38,20 @@ async def cuartos(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         except (IndexError, ValueError):
             await update.message.reply_text("Please provide a valid number of rooms. Usage: /cuartos <number>")
 
+# Here i need a cmd to ask you for the whole questioning process.
+# like /newproject
+
+async def newproject(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.message:
+        # Ask to select two options A or B.
+        # So A is for the whole questioning process
+        # B is for the short questioning process
+        # B is more straingforward and A is more detailed.
+        await update.message.reply_text("Do you want to start a new project?")
+        await update.message.reply_text("A. Detailed")
+        await update.message.reply_text("B. Short")
+
+
 def main():
     # Create the Application and pass it your bot's token.
     application = Application.builder().token(TELEGRAM_TOKEN).build()

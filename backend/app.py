@@ -3,6 +3,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 import os
 from datetime import datetime, timedelta
 from cac_scraper import scrape_cac_index_alternative, get_cached_cac_value, cache_cac_value, update_last_run_timestamp, should_run_test
+from scrape_news import scrape_news, get_news_from_db
 
 # Replace with your own token
 TELEGRAM_TOKEN = '7658861058:AAE13jvC_LigFZ1VuasbG7X9T-H5BMy8aw4'
@@ -38,8 +39,20 @@ async def cuartos(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         except (IndexError, ValueError):
             await update.message.reply_text("Please provide a valid number of rooms. Usage: /cuartos <number>")
 
-# Here i need a cmd to ask you for the whole questioning process.
-# like /newproject
+async def noticias(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.message:
+        today = datetime.now().strftime('%Y-%m-%d')
+        cached_news = get_news_from_db(today)
+        if cached_news:
+            await update.message.reply_text("News already scraped today. Retrieving from cache...")
+            await update.message.reply_text(cached_news)
+        else:
+            scrape_news()
+            cached_news = get_news_from_db(today)
+            if cached_news:
+                await update.message.reply_text(cached_news)
+            else:
+                await update.message.reply_text("Failed to retrieve the news")
 
 async def newproject(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.message:
@@ -51,7 +64,6 @@ async def newproject(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         await update.message.reply_text("A. Detailed")
         await update.message.reply_text("B. Short")
 
-
 def main():
     # Create the Application and pass it your bot's token.
     application = Application.builder().token(TELEGRAM_TOKEN).build()
@@ -62,6 +74,10 @@ def main():
     application.add_handler(CommandHandler("cac", cac))
     # Register the /cuartos command handler
     application.add_handler(CommandHandler("cuartos", cuartos))
+    # Register the /noticias command handler
+    application.add_handler(CommandHandler("noticias", noticias))
+    # Register the /newproject command handler
+    application.add_handler(CommandHandler("newproject", newproject))
 
     # Start the Bot
     application.run_polling()
